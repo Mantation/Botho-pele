@@ -1,0 +1,655 @@
+package menuFragment.Missing;
+
+
+import android.app.Activity;
+import android.app.Dialog;
+import android.net.Uri;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.Constraints;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import adapters.MissingCommentsAdapter;
+import constants.constants;
+import de.hdodenhof.circleimageview.CircleImageView;
+import helperClasses.CustomEditText;
+import interfaces.interface_;
+import io.eyec.bombo.bothopele.MainActivity;
+import io.eyec.bombo.bothopele.R;
+import methods.globalMethods;
+import properties.accessKeys;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
+import static logHandler.Logging.Logerror;
+import static logHandler.Logging.Loginfo;
+import static methods.globalMethods.InitializeFirstLetter;
+import static methods.globalMethods.Time;
+import static methods.globalMethods.ToDate;
+import static methods.globalMethods.getCameraPermissions;
+import static methods.globalMethods.getReadWritePermissions;
+import static properties.accessKeys.setExitApplication;
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class profile extends android.app.Fragment implements View.OnClickListener, View.OnTouchListener , interface_.DrawableClickListener{
+    View myview;
+    CircleImageView Imageview;
+    TextView Name;
+    TextView Race;
+    TextView Built;
+    TextView seenPlace;
+    TextView seenTime;
+    TextView Info;
+    CustomEditText Message;
+    ImageButton Send;
+    static ImageView Image;
+    static ImageView closeImage;
+    static ConstraintLayout MainPreviewLayer;
+    int Height;
+    static RecyclerView recyclerView;
+    public static MissingCommentsAdapter myAdapter;
+    static ProgressBar progressBar;
+    public static boolean onMissingComments;
+    public static String selectedImage;
+
+    static String myImage;
+    static String myName;
+    static String myRace;
+    static String myGender;
+    static String myHeight;
+    static String myBuilt;
+    static String mySeenPlace;
+    static String mySeenTime;
+    static String myInfo;
+    static String myDocRef;
+
+    public static String getMyImage() {
+        return myImage;
+    }
+
+    public static void setMyImage(String myImage) {
+        profile.myImage = myImage;
+    }
+
+    public static String getMyName() {
+        return myName;
+    }
+
+    public static void setMyName(String myName) {
+        profile.myName = myName;
+    }
+
+    public static String getMyRace() {
+        return myRace;
+    }
+
+    public static void setMyRace(String myRace) {
+        profile.myRace = myRace;
+    }
+
+    public static String getMyGender() {
+        return myGender;
+    }
+
+    public static void setMyGender(String myGender) {
+        profile.myGender = myGender;
+    }
+
+    public static String getMyHeight() {
+        return myHeight;
+    }
+
+    public static void setMyHeight(String myHeight) {
+        profile.myHeight = myHeight;
+    }
+
+    public static String getMyBuilt() {
+        return myBuilt;
+    }
+
+    public static void setMyBuilt(String myBuilt) {
+        profile.myBuilt = myBuilt;
+    }
+
+    public static String getMySeenPlace() {
+        return mySeenPlace;
+    }
+
+    public static void setMySeenPlace(String mySeenPlace) {
+        profile.mySeenPlace = mySeenPlace;
+    }
+
+    public static String getMySeenTime() {
+        return mySeenTime;
+    }
+
+    public static void setMySeenTime(String mySeenTime) {
+        profile.mySeenTime = mySeenTime;
+    }
+
+    public static String getMyInfo() {
+        return myInfo;
+    }
+
+    public static void setMyInfo(String myInfo) {
+        profile.myInfo = myInfo;
+    }
+
+    public static String getMyDocRef() {
+        return myDocRef;
+    }
+
+    public static void setMyDocRef(String myDocRef) {
+        profile.myDocRef = myDocRef;
+    }
+
+    //set selected image on imageview
+    public static void setCommentImage(Activity activity, String myImage) {
+        Glide.with(activity).load(myImage).into(Image);
+        selectedImage = myImage;
+        MainPreviewLayer.setVisibility(View.VISIBLE);
+    }
+
+    public profile() {
+        // Required empty public constructor
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        myview = inflater.inflate(R.layout.fragment_profile, container, false);
+        Imageview = myview.findViewById(R.id.victimpic);
+        Name = myview.findViewById(R.id.name);
+        Race = myview.findViewById(R.id.race);
+        Built = myview.findViewById(R.id.built);
+        seenPlace = myview.findViewById(R.id.lastSeenPlace);
+        seenTime = myview.findViewById(R.id.lastSeenDate);
+        Info = myview.findViewById(R.id.Info);
+        Message = myview.findViewById(R.id.initiateText);
+        Send = myview.findViewById(R.id.imageButton);
+        progressBar = myview.findViewById(R.id.progress);
+        recyclerView = myview.findViewById(R.id.recyclerview_messages);
+        Image = myview.findViewById(R.id.selectedImage);
+        closeImage = myview.findViewById(R.id.closeImage);
+        MainPreviewLayer = myview.findViewById(R.id.displayLayer);
+        progressBar.setVisibility(View.VISIBLE);
+        MainPreviewLayer.setVisibility(View.GONE);
+        connectionHandler.external.missingComments_.getAllDocuments(getActivity(), recyclerView,getMyDocRef(), progressBar);
+        recyclerView.setOnTouchListener(this);
+        Message.setOnTouchListener(this);
+        closeImage.setOnTouchListener(this);
+        Message.setDrawableClickListener(this);
+        //scroll
+        scroll = true;
+        MonitorScroll();
+        //initialize
+        Glide.with(getActivity()).load(getMyImage()).into(Imageview);
+        Name.setText(getMyName());
+        Race.setText(getMyGender()+", "+getMyRace()+", "+getMyHeight()+"cm");
+        Built.setText(getMyBuilt());
+        seenPlace.setText(getMySeenPlace());
+        seenTime.setText(getMySeenTime());
+        if(getMyInfo()!=null || getMyInfo().equalsIgnoreCase(" ")){
+            if (getMyInfo().length() > 100){
+                Info.setText(getMyInfo().substring(0,90)+"...");
+            }else {
+                Info.setText(getMyInfo());
+            }
+        }else{
+            Info.setVisibility(View.GONE);
+        }
+        trackR_TextArea();
+        Message.requestFocus();
+        Height = Message.getLayoutParams().height;
+        Send.setOnClickListener(this);
+        setExitApplication(false);
+        return myview;
+    }
+
+    @Override
+    public void onDestroy() {
+        onMissingComments = false;
+        handler.removeCallbacks(myRunnable);
+        handler.removeCallbacksAndMessages(null);
+        handler.removeCallbacksAndMessages(myRunnable);
+        handler.removeMessages(0);
+        super.onDestroy();
+    }
+
+    private  void trackR_TextArea(){
+        Message.addTextChangedListener(new TextWatcher() {
+
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+                ViewGroup.LayoutParams params = Message.getLayoutParams();
+                if(Message.getLineCount() > 2) {
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    Message.setLayoutParams(params);
+                    Message.invalidate();
+                    Message.setMaxLines(5);
+                }else{
+                    if(Message.getLineCount() <= 2) {
+                        params.height = Height;
+                        Message.setLayoutParams(params);
+                        Message.invalidate();
+                        Message.setMaxLines(5);
+                    }
+                }
+
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+                //InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                //if(imm.isActive()){
+                //    scrollView.arrowScroll(ScrollView.FOCUS_DOWN);
+                //}
+            }
+            public void afterTextChanged(Editable s) {
+                ViewGroup.LayoutParams params = Message.getLayoutParams();
+                if(Message.getLineCount() > 2) {
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    Message.setLayoutParams(params);
+                    Message.invalidate();
+                    Message.setMaxLines(5);
+                }else{
+                    if(Message.getLineCount() <= 2) {
+                        params.height = Height;
+                        Message.setLayoutParams(params);
+                        Message.invalidate();
+                        Message.setMaxLines(5);
+                    }
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        int id = v.getId();
+        scroll = false;
+        if(id == R.id.closeImage){
+            MainPreviewLayer.setVisibility(View.GONE);
+            selectedImage = null;
+            Image.setImageDrawable(null);
+        }
+        return false;
+    }
+
+    public static void InitiateCameraForCommentPic(final Activity Myactivity){
+        final Dialog dialog = new Dialog(Myactivity);
+        dialog.setContentView(R.layout.camera_custom_layout);
+        dialog.setCancelable(true);
+        TextView dialogCamera = (TextView) dialog.findViewById(R.id.camera);
+        TextView dialogfromPhone = (TextView) dialog.findViewById(R.id.fromphone);
+        TextView dialogCancel = (TextView) dialog.findViewById(R.id.cancel);
+        // if button is clicked, close the custom dialog
+        dialogCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                MainActivity.capturePic = true;
+                MainActivity.permissionfor = constants.camera;
+                getCameraPermissions(Myactivity);
+            }
+        });
+        dialogfromPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                MainActivity.selectPic = true;
+                MainActivity.permissionfor = constants.choosefile;
+                getReadWritePermissions(Myactivity);
+                //getActivity().startActivityForResult(getFileChooserIntent(), constants.CHOOSE_FILE_REQUESTCODE);
+
+            }
+        });
+        dialogCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        String messageContent = Message.getText().toString();
+        String Picure;
+        if(accessKeys.isApproval()) {
+            if (!messageContent.isEmpty()) {
+                Message.setText("");
+                if (selectedImage == null || selectedImage.equalsIgnoreCase(" ")) {
+                    Picure = "none";
+                } else {
+                    Picure = selectedImage;
+                    MainPreviewLayer.setVisibility(View.GONE);
+                    selectedImage = null;
+                    Image.setImageDrawable(null);
+                }
+                int count = myAdapter.getItemCount();
+                updateRecycler(getActivity(), false, count, messageContent, Picure);
+            } else {
+                Message.requestFocus();
+            }
+        }else{
+            Toast.makeText(getActivity(), "Cannot perform transaction, your verification status is pending!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onClick(DrawablePosition target) {
+        switch (target) {
+            case LEFT:
+                //Launch camera
+                onMissingComments = true;
+                InitiateCameraForCommentPic(getActivity());
+                break;
+            case RIGHT:
+                //Do something here
+                break;
+            case TOP:
+                //Do something here
+                break;
+            case BOTTOM:
+                //Do something here
+                break;
+
+            default:
+                break;
+        }
+
+    }
+
+    // update recyclerview
+    private static void updateRecycler(final Activity activity,final boolean updateId, final int count, final String messageContent,final String pictureContent){
+        //get initial values
+        String image_[] = new String[myAdapter.Dates.length];
+        String name_[] = new String[myAdapter.Dates.length];
+        String dates_[] = new String[myAdapter.Dates.length];
+        String times_[] = new String[myAdapter.Dates.length];
+        String messages_[] = new String[myAdapter.Dates.length];
+        String commentImage_[] = new String[myAdapter.Dates.length];
+
+        for (int i = 0; i < myAdapter.Dates.length; i++) {
+            dates_[i] = myAdapter.Dates[i];
+            times_[i] = myAdapter.Times[i];
+            messages_[i] = myAdapter.Comment[i];
+            image_[i] = myAdapter.Image[i];
+            name_[i] = myAdapter.Name[i];
+            commentImage_[i] = myAdapter.CommentImage[i];
+        }
+        //extend array
+        myAdapter.Dates = new String[count + 1];
+        myAdapter.Times = new String[count + 1];
+        myAdapter.Comment = new String[count + 1];
+        myAdapter.Image = new String[count + 1];
+        myAdapter.Name = new String[count + 1];
+        myAdapter.CommentImage = new String[count + 1];
+        //reallocate variables
+        for (int x = 0; x < dates_.length; x++) {
+            myAdapter.Dates[x] = dates_[x];
+            myAdapter.Times[x] = times_[x];
+            myAdapter.Comment[x] = messages_[x];
+            myAdapter.Image[x] = image_[x];
+            myAdapter.Name[x] = name_[x];
+            myAdapter.CommentImage[x] = commentImage_[x];
+        }
+        //allocate variables
+        myAdapter.Dates[count] = ToDate();
+        myAdapter.Times[count] = "sending...";
+        myAdapter.Comment[count] = messageContent;
+        myAdapter.Image[count] = accessKeys.getUserImage();
+        myAdapter.Name[count] = InitializeFirstLetter(accessKeys.getName())+" "+InitializeFirstLetter(accessKeys.getSurname());
+        myAdapter.CommentImage[count] = pictureContent;
+        myAdapter.notifyDataSetChanged();
+        recyclerView.smoothScrollToPosition(myAdapter.getItemCount()-1);
+        sendUserComment(activity,updateId,accessKeys.getDefaultUserId(),InitializeFirstLetter(accessKeys.getName())+" "+InitializeFirstLetter(accessKeys.getSurname()),getMyDocRef(),messageContent,accessKeys.getUserImage(),pictureContent,myAdapter.Times, count);
+    }
+
+    //sending user Message
+    private static void sendUserComment(final Activity activity,final boolean updateId, final String userId, final String Name, final String Doc, final String Message,final String Image,final String commentImage,final String []TimeLayout, final int index){
+        try {
+            String defaultvalue = "n/a";
+            final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            final String time = Time();
+            // Create a new user with a first and last name
+            Map<String, Object> user = new HashMap<>();
+            user.put("document ref", defaultvalue);
+            user.put("userid", userId);
+            user.put("name", Name);
+            user.put("parentDocument",Doc);
+            user.put("date", ToDate());
+            user.put("time", time);
+            user.put("comment", Message);
+            user.put("Image", Image);
+            user.put("commentImage", commentImage);
+
+            // Add a new document with a generated ID
+            db.collection(constants.missingComments)
+                    .add(user)
+                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                            final  String document = documentReference.getId();
+                            CollectionReference collectionReference = db.collection(constants.missingComments);
+                            collectionReference.document(documentReference.getId()).update("document ref", document).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        //set Realm user information;
+                                        Loginfo("user Personal Details successfully added");
+                                        if(updateId){
+                                            Loginfo("user Personal Details successfully added");
+                                            TimeLayout[index] = time.substring(0,5);
+                                            myAdapter.notifyDataSetChanged();
+                                            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+                                        }else{
+                                            //update time on recyclerview
+                                            TimeLayout[index] = time.substring(0,5);
+                                            myAdapter.notifyDataSetChanged();
+                                            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+                                        }
+                                        if(!commentImage.equalsIgnoreCase("none")){
+                                            saveCommentImage(activity,commentImage, document);
+                                        }
+                                    }else{
+                                        globalMethods.stopProgress = true;
+                                        Logerror("unable to update user ID Details, ");
+                                        //update time on recyclerview
+                                        TimeLayout[index] = "Failed";
+                                        myAdapter.notifyDataSetChanged();
+                                        recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+                                    }
+                                }
+
+                            });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error adding document", e);
+                            globalMethods.stopProgress = true;
+                            Logerror("unable to add user Personal Details, " + e.getMessage());
+                            //update time on recyclerview
+                            TimeLayout[index] = "Failed";
+                            myAdapter.notifyDataSetChanged();
+                            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+                        }
+                    });
+        }catch (Exception exception){
+            exception.getMessage();
+            exception.printStackTrace();
+        }
+    }
+
+    //set profile picture to storage
+    public static String saveCommentImage(final Activity activity, final String Image, final String Document){
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        final StorageReference storageRef = storage.getReference();
+        final StorageReference ref = storageRef.child(constants.missingComments)
+                .child("Images").child(Document);
+        UploadTask uploadTask = ref.putFile(Uri.parse(Image));
+        final String url = String.valueOf(ref.getDownloadUrl());
+
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+                // Continue with the task to get the download URL
+                return ref.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    updateProfileDocument(activity,downloadUri.toString(),Document);
+                } else {
+                    // Handle failures
+                    // ...
+                    progressBar.setVisibility(View.GONE);
+                    globalMethods.stopProgress = true;
+                    Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        return url;
+    }
+
+    //update PicturePath
+    public static void updateProfileDocument(final Activity activity, final String picture, final String documentRef){
+        try {
+            Map<String, Object> user = new HashMap<>();
+            user.put("commentImage", picture);
+
+            final FirebaseFirestore db = FirebaseFirestore.getInstance();
+            CollectionReference collectionReference = db.collection(constants.missingComments );
+            collectionReference.document(documentRef).update(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Log.d(Constraints.TAG, "DocumentSnapshot added with ID: " + documentRef);
+                    }else {
+                        // Handle failures
+                        // ...
+                        Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+
+
+                // Create a new user with a first and last name
+                //MapView<String, Object> user = new HashMap<>();
+                //user.put("userPhone", Phone);
+                //user.put("userPicture", Picture);
+
+                // Add a new document with a generated ID
+                //db.collection(constants.users).document(userId)
+                //        .update("userid", userId)
+                //        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                //.addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                //        public void onComplete(@NonNull Task<Void> task) {
+                //            if (task.isSuccessful()) {
+                //Toast.makeText(this, "Document created/updated", Toast.LENGTH_SHORT).show();
+                //               Log.d(TAG, "DocumentSnapshot added with ID: " + userId);
+                //               setPhoneNumber(activity, getDefaultUserEmail(), Phone, Picture);
+                //           }
+                //       }
+                        /*@Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                            //final String userid = documentReference.getId();
+                            CollectionReference collectionReference = db.collection(constants.users);
+                            collectionReference.document(userId).update("userid", userId).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        //Toast.makeText(this, "Document created/updated", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, "DocumentSnapshot added with ID: " + userId);
+                                        setPhoneNumber(activity, getDefaultUserEmail(), Phone, Picture);
+                                    }
+                                }
+                            });
+                        }*/
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.w(Constraints.TAG, "Error adding document", e);
+                    Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }catch (Exception exception){
+            exception.getMessage();
+            exception.printStackTrace();
+            Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+
+
+    public static boolean scroll;
+    public static final Handler handler = new Handler();
+    final static int delay = 500; //milliseconds
+    public static Runnable myRunnable;
+    public static void MonitorScroll(){
+        handler.postDelayed(myRunnable = new Runnable(){
+            public void run(){
+                if(scroll) {
+                    if (myAdapter != null)
+                        if(myAdapter.getItemCount()!= 0)
+                            recyclerView.smoothScrollToPosition(myAdapter.getItemCount()-1);
+                }else{
+                    handler.removeMessages(0);
+                    handler.removeCallbacks(myRunnable);
+                    handler.removeCallbacksAndMessages(null);
+                    handler.removeCallbacksAndMessages(myRunnable);
+                }
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
+    }
+}

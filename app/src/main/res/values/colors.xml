@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="Red">#FF0000</color>
+    <color name="Green">#008000</color>
+    <color name="Blue">#0000FF</color>
+    <color name="Black">#000000</color>
+    <color name="Pink">#FFC0CB</color>
+    <color name="Orange">#FFA500</color>
+    <color name="Purple">#800080</color>
+    <color name="Yellow">#FFFF00</color>
+    <color name="Cyan">#00FFFF</color>
+    <color name="Gold">#FFD700</color>
+    <color name="Meroon">#800000</color>
+    <color name="colorwhite">#FFF</color>
+    <color name="colorblack">#000</color>
+    <color name="colorTransparent">#cccccc</color>
+    <color name="colorOranges">#ffa550</color>
+    <color name="colorOrange">#E79800</color>
+    <color name="colorGreen">#008000</color>
+    <color name="colorTeal">#008080</color>
+    <color name="colorRed">#ff0000</color>
+    <color name="colorGrey">#808080</color>
+    <color name="colorLtGrey">#D3D3D3</color>
+    <color name="colorTabIndicator">#2D2D2D</color>
+    <color name="colorRedSace">#cc0000</color>
+    <color name="colorPeach">#b19f6a</color>
+    <color name="colorltBlue">#3F51B5</color>
+    <color name="colordkGreay">#343a40</color>
+    <color name="colormdblue">#303F9F</color>
+</resources>

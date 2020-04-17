@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Botho pele</string>
+    <string name="msg_token_fmt">Token value %s </string>
+    <string name="email">info@eyecconsulting.co.za</string>
+    <string name="FCM">"https://fcm.googleapis.com/fcm/send"</string>
+    <string name="mapKey">AIzaSyDZKITi2sVmk7komJgT4KpAjaz0HhzPEoQ</string>
+    <string name="messagingServer">AIzaSyAw_Aq6OFRDDQeKpqYv5ZVazHlrQuYu7iw</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
