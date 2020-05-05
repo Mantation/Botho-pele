@@ -212,7 +212,7 @@ public class initiate extends android.app.Fragment implements View.OnTouchListen
     @Override
     public void onResume() {
         super.onResume();
-        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null){
+        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null && MapView.isOnMissing()){
             if(selectedImage!=null){
                 Glide.with(getActivity()).load(selectedImage).into(victimpic);
             }
@@ -225,7 +225,7 @@ public class initiate extends android.app.Fragment implements View.OnTouchListen
     @Override
     public void onStart() {
         super.onStart();
-        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null){
+        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null && MapView.isOnMissing()){
             if(selectedImage!=null){
                 Glide.with(getActivity()).load(selectedImage).into(victimpic);
             }
@@ -238,7 +238,7 @@ public class initiate extends android.app.Fragment implements View.OnTouchListen
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null){
+        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null && MapView.isOnMissing()){
             if(selectedImage!=null){
                 Glide.with(getActivity()).load(selectedImage).into(victimpic);
             }
@@ -690,6 +690,7 @@ public class initiate extends android.app.Fragment implements View.OnTouchListen
         if (id==R.id.dateofLastSeen) {
             InitiateDate(getActivity(), dateofLastSeen);
         }else{
+            MapView.setOnMissing(true);
             methods.globalMethods.loadFragments(R.id.main, new MapView(), getActivity());
         }
         return false;
@@ -821,7 +822,7 @@ public class initiate extends android.app.Fragment implements View.OnTouchListen
                                     messagingHelper.setLargeIcon(Image);
                                     soloNotification.setNotificationType("missing");
                                     String Token = document.get("token").toString();
-                                    soloNotification.serverKey = activity.getResources().getString(R.string.messagingServer);
+                                    soloNotification.serverKey = activity.getResources().getString(R.string.messaging_api_key);
                                     new soloNotification().execute("Missing person","Please help us find "+Name,Token);
 
                                 }

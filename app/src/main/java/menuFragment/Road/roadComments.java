@@ -13,6 +13,7 @@ import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Constraints;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
@@ -346,6 +347,7 @@ public class roadComments extends Fragment implements View.OnClickListener, View
         isMaximized = false;
         typeSection.setVisibility(View.VISIBLE);
         Separator.setVisibility(View.VISIBLE);
+        roadComments.onRoadComments = false;
     }
 
     public static void hideStatusBar(final Activity activity) {
@@ -776,7 +778,15 @@ public class roadComments extends Fragment implements View.OnClickListener, View
                 if(scroll) {
                     if (myAdapter != null)
                         if(myAdapter.getItemCount()!= 0)
-                            recyclerView.smoothScrollToPosition(myAdapter.getItemCount()-1);
+                            recyclerView.smoothScrollToPosition(myAdapter.getItemCount());
+                            LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                            if(layoutManager !=null) {
+                                if (layoutManager.findFirstVisibleItemPosition() == myAdapter.getItemCount()) {
+                                    //recyclerView.smoothScrollToPosition(myAdapter.getItemCount()-1);
+                                    scroll = false;
+                                }
+                            }
+
                 }else{
                     handler.removeMessages(0);
                     handler.removeCallbacks(myRunnable);

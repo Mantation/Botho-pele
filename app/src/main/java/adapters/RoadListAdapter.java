@@ -157,7 +157,7 @@ public class RoadListAdapter extends RecyclerView.Adapter <roadViewHolder> {
                 roadComments.setMyIncident(Incident[position]);
                 roadComments.setMyInfo(Info[position]);
                 roadComments.setMyFile(File[position]);
-                MainActivity.returnToRoadHome = false;
+                //MainActivity.returnToRoadHome = false;
                 methods.globalMethods.loadFragments(R.id.main, new overview(), activity);
             }
         });

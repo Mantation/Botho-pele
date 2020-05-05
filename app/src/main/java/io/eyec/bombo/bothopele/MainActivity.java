@@ -520,6 +520,9 @@ public class MainActivity extends AppCompatActivity {
             }else if(returnToMain) {
                 methods.globalMethods.loadFragments(R.id.main, new main(), this);
                 returnToMain = false;
+            }else if(roadComments.onRoadComments){
+                roadComments.RestoreLayout(activity);
+                roadComments.onRoadComments = false;
             }else{
                 super.onBackPressed();
             }

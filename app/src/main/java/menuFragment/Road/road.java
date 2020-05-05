@@ -69,6 +69,7 @@ import constants.constants;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.eyec.bombo.bothopele.MainActivity;
 import io.eyec.bombo.bothopele.R;
+import io.eyec.bombo.bothopele.backgroundLocationTracker;
 import menuFragment.DialogFragments.incidentList;
 import menuFragment.Missing.profile;
 import menuFragment.maps.MapView;
@@ -202,6 +203,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
             }
         };
         globalMethods.geRoadLocationPermission(getActivity(), locationManager, locationListener);
+        MainActivity.returnToRoadHome = false;
         setExitApplication(false);
         return myview;
     }
@@ -209,7 +211,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
     @Override
     public void onResume() {
         super.onResume();
-        if (accessKeys.getTargetLat() != null && accessKeys.getTargetLong() != null && !MainActivity.returnToRoadHome) {
+        if (accessKeys.getTargetLat() != null && accessKeys.getTargetLong() != null && !MainActivity.returnToRoadHome && MapView.isOnRoad()) {
             if (selectedImage != null) {
                 Glide.with(getActivity()).load(selectedImage).into(incidentpic);
             }
@@ -226,7 +228,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
     @Override
     public void onStart() {
         super.onStart();
-        if (accessKeys.getTargetLat() != null && accessKeys.getTargetLong() != null && !MainActivity.returnToRoadHome) {
+        if (accessKeys.getTargetLat() != null && accessKeys.getTargetLong() != null && !MainActivity.returnToRoadHome  && MapView.isOnRoad()) {
             if (selectedImage != null) {
                 Glide.with(getActivity()).load(selectedImage).into(incidentpic);
             }
@@ -243,7 +245,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (accessKeys.getTargetLat() != null && accessKeys.getTargetLong() != null && !MainActivity.returnToRoadHome) {
+        if (accessKeys.getTargetLat() != null && accessKeys.getTargetLong() != null && !MainActivity.returnToRoadHome  && MapView.isOnRoad()) {
             if (selectedImage != null) {
                 Glide.with(getActivity()).load(selectedImage).into(incidentpic);
             }
@@ -412,8 +414,12 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
                             if (task.isSuccessful()) {
                                 //set Realm user information;
                                 Loginfo("missing profile Details successfully added");
-                                saveImageDocument(activity, selectedImage, document, IncidentTime, IncidentType, LastSeenPlace, Additional, fileVid);
-                                reportIncidentTimePlace(activity, Reporter,selectedImage, IncidentTime, LastSeenPlace, document,fileVid);
+                                if(fileVid){
+                                    reportIncidentTimePlace(activity, Reporter,selectedImage, IncidentTime, LastSeenPlace, document,fileVid);
+                                }else {
+                                    saveImageDocument(activity, Reporter,selectedImage, document, IncidentTime, IncidentType, LastSeenPlace, Additional, fileVid);
+                                }
+                                //reportIncidentTimePlace(activity, Reporter,selectedImage, IncidentTime, LastSeenPlace, document,fileVid);
                             } else {
                                 progressBar.setVisibility(View.GONE);
                                 globalMethods.stopProgress = true;
@@ -500,7 +506,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
     }
 
     //set profile picture to storage
-    public static String saveImageDocument(final Activity activity, final String Image, final String Document,final String IncidentTime, final String IncidentType , final String LastSeenPlace, final String Additional,final boolean fileVid){
+    public static String saveImageDocument(final Activity activity, final String Reporter, final String Image, final String Document,final String IncidentTime, final String IncidentType , final String LastSeenPlace, final String Additional,final boolean fileVid){
         FirebaseStorage storage = FirebaseStorage.getInstance();
         final StorageReference storageRef = storage.getReference();
         String Location = "";
@@ -528,7 +534,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
-                    updateProfileDocument(activity,downloadUri.toString(),Document,IncidentTime,IncidentType,LastSeenPlace,Additional,fileVid);
+                    updateProfileDocument(activity,Reporter,downloadUri.toString(),Document,IncidentTime,IncidentType,LastSeenPlace,Additional,fileVid);
                 } else {
                     // Handle failures
                     // ...
@@ -542,7 +548,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
     }
 
     //set audio file
-    private static String saveVidDocument(final Activity activity, final String Video, final String Document,final String IncidentTime, final String IncidentType , final String LastSeenPlace, final String Additional,final boolean fileVid){
+    private static String saveVidDocument(final Activity activity, String Reporter, final String Video, final String Document,final String IncidentTime, final String IncidentType , final String LastSeenPlace, final String Additional,final boolean fileVid){
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         final StorageReference ref = storageRef.child(constants.road)
@@ -571,7 +577,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
-                    updateProfileDocument(activity,downloadUri.toString(),Document,IncidentTime,IncidentType,LastSeenPlace,Additional,fileVid);
+                    updateProfileDocument(activity,Reporter,downloadUri.toString(),Document,IncidentTime,IncidentType,LastSeenPlace,Additional,fileVid);
                     //updateAudio(activity,issueno,pictureUrl,description,text_description,downloadUri.toString());
                     //SaveIssue(activity, description, downloadUri.toString(), pictureUrl,issueno,audio);// for audio
                 } else {
@@ -584,7 +590,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
     }
 
     //update PicturePath
-    public static void updateProfileDocument(final Activity activity, final String picture, final String documentRef, final String IncidentTime, final String IncidentType , final String LastSeenPlace, final String Additional,final boolean fileVid){
+    public static void updateProfileDocument(final Activity activity,final String Reporter, final String picture, final String documentRef, final String IncidentTime, final String IncidentType , final String LastSeenPlace, final String Additional,final boolean fileVid){
         try {
             Map<String, Object> user = new HashMap<>();
             if(fileVid){
@@ -598,12 +604,10 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
+                        if(!fileVid)
+                            reportIncidentTimePlace(activity, picture,Reporter, IncidentTime, LastSeenPlace, documentRef,fileVid);
                         Log.d(Constraints.TAG, "DocumentSnapshot added with ID: " + documentRef);
                         globalMethods.stopProgress = true;
-                        road.Additional.setText("");
-                        road.type.setText("");
-                        road.placeofLastSeen.setText("");
-                        selectedImage = null;
                         progressBar.setVisibility(View.GONE);
                         Locator.setMyDocRef(documentRef);
                         roadComments.setVideo(fileVid);
@@ -613,6 +617,14 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
                         roadComments.setMyFile(picture);
                         MainActivity.returnToRoadHome = true;
                         globalMethods.loadFragments(R.id.main, new overview(), activity);
+                        accessKeys.setTargetLat(null);
+                        accessKeys.setTargetLong(null);
+                        selectedImage = null;
+                        incidentType = null;
+                        road.Additional.setText("");
+                        road.type.setText("");
+                        road.placeofLastSeen.setText("");
+                        road.incidentpic.setImageDrawable(activity.getResources().getDrawable(R.drawable.unknown));
                     }else {
                         // Handle failures
                         // ...
@@ -777,6 +789,7 @@ public class road extends android.app.Fragment implements View.OnClickListener, 
             incident = new incidentList();
             incident.show(fragmentManager, "so");
         }else{
+            MapView.setOnRoad(true);
             methods.globalMethods.loadFragments(R.id.main, new MapView(), getActivity());
         }
 

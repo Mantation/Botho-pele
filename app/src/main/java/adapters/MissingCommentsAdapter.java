@@ -138,8 +138,9 @@ public class MissingCommentsAdapter extends RecyclerView.Adapter <commentsViewHo
         //set Header Layout
         ViewGroup.LayoutParams params = holder.Header.getLayoutParams();
         int defaultHeight = params.height;
+        int defaultWidth = params.width;
         params.height = defaultHeight - Header;
-        params.width = holder.Header.getLayoutParams().width;
+        params.width = defaultWidth;//holder.Header.getLayoutParams().width;
         holder.Header.setLayoutParams(params);
         holder.Header.invalidate();
         //Image

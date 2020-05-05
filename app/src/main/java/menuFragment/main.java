@@ -79,6 +79,7 @@ import menuFragment.Movement.mainMovement;
 import menuFragment.Notifications.soloNotification;
 import menuFragment.Road.mainRoad;
 import menuFragment.Stations.policeStations;
+import menuFragment.maps.MapView;
 import methods.globalMethods;
 import properties.accessKeys;
 
@@ -226,6 +227,7 @@ public class main extends android.app.Fragment implements View.OnClickListener{
         RejectedImage(getActivity());
         AlignDots(getActivity());
         setExitApplication(true);
+        MapView.initiateMapContent();
         return myview;
     }
 
@@ -497,8 +499,8 @@ public class main extends android.app.Fragment implements View.OnClickListener{
                     }else{
                         Auth.setVisibility(View.GONE);
                         Random random = new Random();
-                        int num = random.nextInt(10);
-                        if((num+1) % 9 == 0){
+                        int num = random.nextInt(30);
+                        if((num+1) % 27 == 0){
                             RateApp(getActivity());
                         }
                     }

@@ -101,7 +101,7 @@ View myview;
         googlePlaceUrl.append("&type="+nearbyPlace);
         googlePlaceUrl.append("&keyword=police");
         googlePlaceUrl.append("&sensor=true");
-        googlePlaceUrl.append("&key="+"AIzaSyDZKITi2sVmk7komJgT4KpAjaz0HhzPEoQ");
+        googlePlaceUrl.append("&key="+getResources().getString(R.string.places_api_key));
         return googlePlaceUrl.toString();
     }
 

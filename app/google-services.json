@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "151636853854-449bo5aklur26genelavfmgigjt2p88k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.eyec.bombo.bothopele",
+            "certificate_hash": "3d7778b5277eb05ef88fdf9136129976415cb1a1"
+          }
+        },
+        {
           "client_id": "151636853854-hjh8jj82hddc26v3vr3vd39hhisdlrpi.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

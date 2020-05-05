@@ -178,7 +178,7 @@ public class mainMovement extends android.app.Fragment implements OnMapReadyCall
             LatLng origin = new LatLng(Double.parseDouble(accessKeys.getLatitude()), Double.parseDouble(accessKeys.getLongitude()));
             LatLng destination = new LatLng(Double.parseDouble(backgroundLocationTracker.getOnMoveLat()), Double.parseDouble(backgroundLocationTracker.getOnMoveLng()));
             //draw route
-            Routing routing = new Routing.Builder().travelMode(Routing.TravelMode.DRIVING).withListener(this).waypoints(origin, destination).key(getResources().getString(R.string.mapKey)).build();
+            Routing routing = new Routing.Builder().travelMode(Routing.TravelMode.DRIVING).withListener(this).waypoints(origin, destination).key(getResources().getString(R.string.places_api_key)).build();
             routing.execute();
             //set marker
             myMap.addCircle(new CircleOptions().center(destination).radius(5000.0).strokeWidth(1f).strokeColor(Color.RED).fillColor(Color.argb(70, 150, 50, 50)));
@@ -287,7 +287,7 @@ public class mainMovement extends android.app.Fragment implements OnMapReadyCall
                                     }
                                 });
                                 //draw route
-                                Routing routing = new Routing.Builder().travelMode(Routing.TravelMode.DRIVING).withListener(routingListener).waypoints(origin, destination).key(getResources().getString(R.string.mapKey)).build();
+                                Routing routing = new Routing.Builder().travelMode(Routing.TravelMode.DRIVING).withListener(routingListener).waypoints(origin, destination).key(getResources().getString(R.string.places_api_key)).build();
                                 routing.execute();
                             /*myMap.addPolyline(new PolylineOptions()
                             .add(origin)
@@ -416,7 +416,7 @@ public class mainMovement extends android.app.Fragment implements OnMapReadyCall
                         soloNotification.setNotificationType("movement");
                         //build notification
                         String token = document.get("token").toString();
-                        soloNotification.serverKey = activity.getResources().getString(R.string.messagingServer);
+                        soloNotification.serverKey = activity.getResources().getString(R.string.messaging_api_key);
                         new soloNotification().execute("On the move!!!","Your contact "+globalMethods.InitializeFirstLetter(accessKeys.getName()) +" "+globalMethods.InitializeFirstLetter(accessKeys.getSurname()) +
                                 " is on the move, kindly keep a watch, thanks.",token);
                         //update all live feed to off
@@ -432,7 +432,7 @@ public class mainMovement extends android.app.Fragment implements OnMapReadyCall
         googlePlaceUrl.append("origin=" + origin);
         googlePlaceUrl.append("&destination=" + destination);
         googlePlaceUrl.append("&mode=" + directionMode);
-        googlePlaceUrl.append("&key=" + getResources().getString(R.string.mapKey));
+        googlePlaceUrl.append("&key=" + getResources().getString(R.string.places_api_key));
         return googlePlaceUrl.toString();
     }
 
@@ -904,57 +904,59 @@ public class mainMovement extends android.app.Fragment implements OnMapReadyCall
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        boolean Live = Boolean.parseBoolean(documentSnapshot.get("live").toString());
-                        if(Live){
-                            db.collection(constants.locator).whereEqualTo("date", ToDate()).whereEqualTo("userid", accessKeys.getDefaultUserId()).whereEqualTo("live", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (DocumentSnapshot document : task.getResult()) {
-                                            if (document.get("location") != null) {
-                                                List<String> location = Arrays.asList(document.get("location").toString());
-                                                int locationSize = Arrays.asList(document.get("location")).size();
-                                                //String[] latlng = location.get(0).split(",");
-                                                //String latlng[] = location.get(locationSize - 1).split(",");
-                                                //LatLng currentPosition = new LatLng(Double.parseDouble(latlng[latlng.length - 2].replace("[", "")), Double.parseDouble(latlng[latlng.length - 1].replace("]", "")));
-                                                LatLng origin = new LatLng(Double.parseDouble(accessKeys.getLatitude()), Double.parseDouble(accessKeys.getLongitude()));
-                                                String []getDest = document.get("destination").toString().split(",");
-                                                LatLng destination = new LatLng(Double.parseDouble(getDest[0]), Double.parseDouble(getDest[1]));
-                                                //draw route
-                                                Routing routing = new Routing.Builder().travelMode(Routing.TravelMode.DRIVING).withListener(routingListener).waypoints(origin, destination).key(activity.getResources().getString(R.string.mapKey)).build();
-                                                routing.execute();
-                                                //set marker
-                                                myMap.addCircle(new CircleOptions().center(destination).radius(5000.0).strokeWidth(1f).strokeColor(Color.RED).fillColor(Color.argb(70, 150, 50, 50)));
-                                                MarkerOptions markerOptions = new MarkerOptions();
-                                                markerOptions.position(destination);
-                                                markerOptions.title("Your destination");
-                                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                                                myMap.addMarker(markerOptions).showInfoWindow();
-                                                MySetInner.setCardBackgroundColor(activity.getResources().getColor(R.color.Red));
-                                                Loc.setText("Cancel Trip");
-                                                defaultMarker.setVisibility(View.GONE);
-                                                //count number of friends
-                                                //get time distance estimates
-                                                CalculateDistanceTime distance_task = new CalculateDistanceTime(activity);
-                                                distance_task.getDirectionsUrl(origin, destination);
-                                                distance_task.setLoadListener(new CalculateDistanceTime.taskCompleteListener() {
-                                                    @Override
-                                                    public void taskCompleted(String[] time_distance) {
+                        if(documentSnapshot.get("live")!=null){
+                            boolean Live = Boolean.parseBoolean(documentSnapshot.get("live").toString());
+                            if(Live) {
+                                db.collection(constants.locator).whereEqualTo("date", ToDate()).whereEqualTo("userid", accessKeys.getDefaultUserId()).whereEqualTo("live", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            for (DocumentSnapshot document : task.getResult()) {
+                                                if (document.get("location") != null) {
+                                                    List<String> location = Arrays.asList(document.get("location").toString());
+                                                    int locationSize = Arrays.asList(document.get("location")).size();
+                                                    //String[] latlng = location.get(0).split(",");
+                                                    //String latlng[] = location.get(locationSize - 1).split(",");
+                                                    //LatLng currentPosition = new LatLng(Double.parseDouble(latlng[latlng.length - 2].replace("[", "")), Double.parseDouble(latlng[latlng.length - 1].replace("]", "")));
+                                                    LatLng origin = new LatLng(Double.parseDouble(accessKeys.getLatitude()), Double.parseDouble(accessKeys.getLongitude()));
+                                                    String[] getDest = document.get("destination").toString().split(",");
+                                                    LatLng destination = new LatLng(Double.parseDouble(getDest[0]), Double.parseDouble(getDest[1]));
+                                                    //draw route
+                                                    Routing routing = new Routing.Builder().travelMode(Routing.TravelMode.DRIVING).withListener(routingListener).waypoints(origin, destination).key(activity.getResources().getString(R.string.places_api_key)).build();
+                                                    routing.execute();
+                                                    //set marker
+                                                    myMap.addCircle(new CircleOptions().center(destination).radius(5000.0).strokeWidth(1f).strokeColor(Color.RED).fillColor(Color.argb(70, 150, 50, 50)));
+                                                    MarkerOptions markerOptions = new MarkerOptions();
+                                                    markerOptions.position(destination);
+                                                    markerOptions.title("Your destination");
+                                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                                                    myMap.addMarker(markerOptions).showInfoWindow();
+                                                    MySetInner.setCardBackgroundColor(activity.getResources().getColor(R.color.Red));
+                                                    Loc.setText("Cancel Trip");
+                                                    defaultMarker.setVisibility(View.GONE);
+                                                    //count number of friends
+                                                    //get time distance estimates
+                                                    CalculateDistanceTime distance_task = new CalculateDistanceTime(activity);
+                                                    distance_task.getDirectionsUrl(origin, destination);
+                                                    distance_task.setLoadListener(new CalculateDistanceTime.taskCompleteListener() {
+                                                        @Override
+                                                        public void taskCompleted(String[] time_distance) {
 
-                                                        friendsCounts(activity,Estimate, time_distance[0], time_distance[1],false);
-                                                        //Send my Location to server per 5minutes
-                                                        //Go Live
-                                                        backgroundLocationTracker.setOntheMove(true);
-                                                        backgroundLocationTracker.setOnMoveLat(getDest[0]);
-                                                        backgroundLocationTracker.setOnMoveLng(getDest[1]);
-                                                        //activateLive();
-                                                    }
-                                                });
+                                                            friendsCounts(activity, Estimate, time_distance[0], time_distance[1], false);
+                                                            //Send my Location to server per 5minutes
+                                                            //Go Live
+                                                            backgroundLocationTracker.setOntheMove(true);
+                                                            backgroundLocationTracker.setOnMoveLat(getDest[0]);
+                                                            backgroundLocationTracker.setOnMoveLng(getDest[1]);
+                                                            //activateLive();
+                                                        }
+                                                    });
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }else{
                             backgroundLocationTracker.setOntheMove(false);
                         }

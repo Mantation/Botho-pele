@@ -55,7 +55,7 @@ public class CalculateDistanceTime {
         String output = "json";
 
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters+"&key="+mContext.getResources().getString(R.string.mapKey);
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters+"&key="+mContext.getResources().getString(R.string.places_api_key);
 
 
         DownloadTask downloadTask = new DownloadTask();

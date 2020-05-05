@@ -103,7 +103,7 @@ public class mainAnon extends android.app.Fragment implements View.OnTouchListen
     @Override
     public void onResume() {
         super.onResume();
-        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null){
+        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null && MapView.isOnAnon()){
             if (incidentType != null) {
                 type.setText(incidentType);
                 type.setTextColor(getActivity().getResources().getColor(R.color.colorPrimaryDark));
@@ -117,7 +117,7 @@ public class mainAnon extends android.app.Fragment implements View.OnTouchListen
     @Override
     public void onStart() {
         super.onStart();
-        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null){
+        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null && MapView.isOnAnon()){
             if (incidentType != null) {
                 type.setText(incidentType);
                 type.setTextColor(getActivity().getResources().getColor(R.color.colorPrimaryDark));
@@ -131,7 +131,7 @@ public class mainAnon extends android.app.Fragment implements View.OnTouchListen
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null){
+        if(accessKeys.getTargetLat()!=null && accessKeys.getTargetLong() !=null && MapView.isOnAnon()){
             if (incidentType != null) {
                 type.setText(incidentType);
                 type.setTextColor(getActivity().getResources().getColor(R.color.colorPrimaryDark));
@@ -194,6 +194,7 @@ public class mainAnon extends android.app.Fragment implements View.OnTouchListen
     public boolean onTouch(View v, MotionEvent event) {
         int id = v.getId();
         if(id == R.id.placeofLastSeen){
+            MapView.setOnAnon(true);
             methods.globalMethods.loadFragments(R.id.main, new MapView(), getActivity());
         }else{
             final android.app.FragmentManager fragmentManager = getActivity().getFragmentManager();

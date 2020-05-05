@@ -182,13 +182,14 @@ public class step2 extends android.app.Fragment implements View.OnClickListener{
         }else{
             progressBar.setVisibility(View.VISIBLE);
             onRegistration = false;
-            auth.InitiateAuth(getActivity(), accessKeys.getPhone());
+            auth.InitiateAuth(getActivity(), accessKeys.getPhone(), progressBar);
 
         }
     }
 
     //set id picture to storage
     public static String saveIDDocument(final Activity activity, final String Image, final String Document){
+        progressBar.setVisibility(View.VISIBLE);
         FirebaseStorage storage = FirebaseStorage.getInstance();
         final StorageReference storageRef = storage.getReference();
         final StorageReference ref = storageRef.child(constants.users)
@@ -237,6 +238,7 @@ public class step2 extends android.app.Fragment implements View.OnClickListener{
                         Log.d(TAG, "DocumentSnapshot added with ID: " + DocumentRef);
                         globalMethods.stopProgress = true;
                         selectedID = null;
+                        accessKeys.setIdImage(picture);
                     }else {
                         // Handle failures
                         // ...
@@ -285,12 +287,14 @@ public class step2 extends android.app.Fragment implements View.OnClickListener{
                 public void onFailure(@NonNull Exception e) {
                     Log.w(TAG, "Error adding document", e);
                     globalMethods.stopProgress = true;
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
                 }
             });
         }catch (Exception exception){
             exception.getMessage();
             exception.printStackTrace();
+            progressBar.setVisibility(View.GONE);
             globalMethods.stopProgress = true;
             Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
         }
@@ -348,12 +352,14 @@ public class step2 extends android.app.Fragment implements View.OnClickListener{
                         globalMethods.stopProgress = true;
                         selectedImage = null;
                         progressBar.setVisibility(View.GONE);
+                        accessKeys.setUserImage(picture);
                         methods.globalMethods.loadFragments(R.id.main, new main(), activity);
                     }else {
                         // Handle failures
                         // ...
                         globalMethods.stopProgress = true;
                         Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
                     }
                 }
 
@@ -397,6 +403,7 @@ public class step2 extends android.app.Fragment implements View.OnClickListener{
                 public void onFailure(@NonNull Exception e) {
                     Log.w(TAG, "Error adding document", e);
                     globalMethods.stopProgress = true;
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -404,6 +411,7 @@ public class step2 extends android.app.Fragment implements View.OnClickListener{
             exception.getMessage();
             exception.printStackTrace();
             globalMethods.stopProgress = true;
+            progressBar.setVisibility(View.GONE);
             Toast.makeText(activity, "Error adding sending details to server", Toast.LENGTH_SHORT).show();
         }
 

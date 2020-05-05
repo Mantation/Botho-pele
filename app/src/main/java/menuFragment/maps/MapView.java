@@ -39,7 +39,45 @@ public class MapView extends android.app.Fragment implements OnMapReadyCallback,
     GoogleMap myMap;
     CardView MySet;
     static FragmentManager fm;
+    public static boolean onAnon;
+    public static boolean onRoad;
+    public static boolean onMissing;
 
+    public static boolean isOnAnon() {
+        return onAnon;
+    }
+
+    public static void setOnAnon(boolean onAnon) {
+        MapView.onAnon = onAnon;
+        MapView.onRoad = false;
+        MapView.onMissing = false;
+    }
+
+    public static boolean isOnRoad() {
+        return onRoad;
+    }
+
+    public static void setOnRoad(boolean onRoad) {
+        MapView.onAnon = false;
+        MapView.onRoad = onRoad;
+        MapView.onMissing = false;
+    }
+
+    public static boolean isOnMissing() {
+        return onMissing;
+    }
+
+    public static void setOnMissing(boolean onMissing) {
+        MapView.onAnon = false;
+        MapView.onRoad = false;
+        MapView.onMissing = onMissing;
+    }
+
+    public static void initiateMapContent(){
+        MapView.onAnon = false;
+        MapView.onRoad = false;
+        MapView.onMissing = false;
+    }
 
     public MapView() {
         // Required empty public constructor

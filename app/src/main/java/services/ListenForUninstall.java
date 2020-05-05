@@ -10,6 +10,10 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
+import authentication.auth;
+
+import static authentication.auth.firebaseAuth;
+
 public class ListenForUninstall extends Thread {
     boolean exit = false;
     ActivityManager am = null;
@@ -37,7 +41,15 @@ public class ListenForUninstall extends Thread {
 
             if (activityName.equals("com.android.packageinstaller.UninstallerActivity")) {
                 // User has clicked on the Uninstall button under the Manage Apps settings
-                FirebaseAuth.getInstance().signOut();
+                if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+                    FirebaseAuth.getInstance().getCurrentUser().delete();
+                    FirebaseAuth.getInstance().signOut();
+                }
+                if(firebaseAuth.getInstance().getCurrentUser()!=null){
+                    firebaseAuth.getInstance().getCurrentUser().delete();
+                    firebaseAuth.getInstance().signOut();
+                }
+
                 //do whatever pre-uninstallation task you want to perform here
                 // show dialogue or start another activity or database operations etc..etc..
 

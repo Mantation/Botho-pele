@@ -119,7 +119,6 @@ public class backgroundLocationTracker extends Service {
     }
 
 
-
     private class LocationListener implements android.location.LocationListener {
         Location mLastLocation;
 
@@ -385,7 +384,7 @@ public class backgroundLocationTracker extends Service {
             exception.printStackTrace();
         }
     }
-    static double maxDistance = 50000.00;
+    static double maxDistance = 50.00;
     static int docCount = 0;
     static ArrayList <String> roadDocuments = new ArrayList<>();
     public static void roadIncidentAlerts(){
@@ -412,7 +411,7 @@ public class backgroundLocationTracker extends Service {
                                         found= true;
                                     }
                                 }
-                                if(queryDocumentSnapshot.get("incidentCoordinates")!=null && accessKeys.getLatitude()!=null && accessKeys.getLongitude() != null && !found){
+                                if(queryDocumentSnapshot.get("imageFile")!=null && queryDocumentSnapshot.get("incidentCoordinates")!=null && accessKeys.getLatitude()!=null && accessKeys.getLongitude() != null && !found ){
                                     roadDocuments.add(queryDocumentSnapshot.getId());
                                     //db.document(constants.road+"/"+queryDocumentSnapshot.getId()).delete();
                                     String []Coords = queryDocumentSnapshot.get("incidentCoordinates").toString().split(",");
@@ -422,6 +421,8 @@ public class backgroundLocationTracker extends Service {
                                     double Lng = Double.parseDouble(Coords[1]);
                                     String distanceBetween = globalMethods.getDistanceBetween(Lat,Lng,Double.parseDouble(accessKeys.getLatitude()),Double.parseDouble(accessKeys.getLongitude()));
                                     if(maxDistance>=Double.parseDouble(distanceBetween.replace(",","."))){
+                                        messagingHelper.setIncludeLargeIcon(true);
+                                        messagingHelper.setLargeIcon(queryDocumentSnapshot.get("imageFile").toString());
                                         //set location variable to notification
                                         soloNotification.setNotificationType("locator");
                                         soloNotification.setMyDocRef(queryDocumentSnapshot.get("document ref").toString());
@@ -435,7 +436,7 @@ public class backgroundLocationTracker extends Service {
                                         }
                                         //build notification
                                         String token = accessKeys.getMessagingToken();
-                                        soloNotification.serverKey = activity.getResources().getString(R.string.messagingServer);
+                                        soloNotification.serverKey = activity.getResources().getString(R.string.messaging_api_key);
                                         new soloNotification().execute(Incident +" incident within your range!","A road-side "+ Incident +" incident along the "+IncidentPlace+" in your vacinity!",token);
                                     }
                                 }
@@ -487,24 +488,36 @@ public class backgroundLocationTracker extends Service {
                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                     if (task.isSuccessful()) {
                                                         for (DocumentSnapshot document : task.getResult()) {
+                                                            //if(document.get("videoFile") != null && document.get("imageFile") != null){
+                                                            //    commentsDocuments.remove(queryDocumentSnapshot.getId());
+                                                            //}else {
                                                             messagingHelper.setIncludeLargeIcon(false);
                                                             messagingHelper.setLargeIcon(null);
-                                                            //set location variable to notification
+                                                                //set location variable to notification
                                                             soloNotification.setNotificationType("locator");
                                                             soloNotification.setMyDocRef(document.get("document ref").toString());
                                                             soloNotification.setVideo(Boolean.parseBoolean(document.get("isVideo").toString()));
                                                             soloNotification.setMyIncident(document.get("incidentType").toString());
                                                             soloNotification.setMyInfo(document.get("moreInfo").toString());
-                                                            if(Boolean.parseBoolean(document.get("isVideo").toString())){
+                                                            if (Boolean.parseBoolean(document.get("isVideo").toString())) {
                                                                 soloNotification.setFile(document.get("videoFile").toString());
-                                                            }else{
+                                                            } else {
                                                                 soloNotification.setFile(document.get("imageFile").toString());
                                                             }
                                                             //build notification
                                                             String Incident = document.get("incidentType").toString();
+                                                            String User = queryDocumentSnapshot.get("name").toString();
+                                                            String comment = "";
+                                                            if(queryDocumentSnapshot.get("comment").toString().equalsIgnoreCase("none")){
+                                                                comment = "co-ordinates supplied for incident ("+Incident+")";
+                                                            }else{
+                                                                comment = queryDocumentSnapshot.get("comment").toString();
+                                                            }
                                                             String token = accessKeys.getMessagingToken();
-                                                            soloNotification.serverKey = activity.getResources().getString(R.string.messagingServer);
-                                                            new soloNotification().execute(Incident + " incident related activity seen " + IncidentTime + "!", "A road-side " + Incident + " incident activity spotted along the " + IncidentPlace + " in your vacinity!", token);
+                                                            soloNotification.serverKey = activity.getResources().getString(R.string.messaging_api_key);
+                                                            new soloNotification().execute(User +" left a comment!",comment, token);
+                                                            //new soloNotification().execute(Incident + " incident related activity seen " + IncidentTime + "!", "A road-side " + Incident + " incident activity spotted along the " + IncidentPlace + " in your vacinity!", token);
+                                                            //}
                                                         }
                                                     }
                                                 }

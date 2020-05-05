@@ -161,6 +161,7 @@ public class RoadCommentsAdapter extends RecyclerView.Adapter <commentsViewHolde
         }else{
             holder.CommentLayout.setVisibility(View.GONE);
         }
+
         int Header = 0;
         if(holder.CommentLayout.getVisibility() == View.GONE){
             ViewGroup.LayoutParams params = holder.CommentLayout.getLayoutParams();

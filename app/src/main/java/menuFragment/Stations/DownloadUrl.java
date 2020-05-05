@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 
 public class DownloadUrl {
@@ -17,6 +19,7 @@ public class DownloadUrl {
         try {
             URL url = new URL(myUrl);
             urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setUseCaches(false);
             urlConnection.connect();
             inputStream = urlConnection.getInputStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));

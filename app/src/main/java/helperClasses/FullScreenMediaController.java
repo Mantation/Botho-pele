@@ -72,6 +72,7 @@ public class FullScreenMediaController extends MediaController implements View.O
                 }else {
                     roadComments.RedefineLayout(activity);
                     roadComments.hideStatusBar(activity);
+                    roadComments.onRoadComments = true;
                 }
                 /*Intent intent = new Intent(getContext(),FullScreenVideoActivity.class);
 
@@ -110,4 +111,6 @@ public class FullScreenMediaController extends MediaController implements View.O
         }
         return false;
     }
+
+
 }

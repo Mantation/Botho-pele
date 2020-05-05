@@ -2,6 +2,7 @@ package authentication;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.util.Log;
 import android.view.View;
@@ -121,6 +122,7 @@ public class auth {
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             String uid = null;
                             if (user != null) {
+                                progressBar.setVisibility(View.VISIBLE);
                                 uid = user.getUid();
                                 //progressBar.setVisibility(View.GONE);
                                 dialog.dismiss();
@@ -166,7 +168,7 @@ public class auth {
         firebaseAuth.signOut();
     }
 
-    public static void InitiateAuth(final Activity activity, final String phoneNumber){
+    public static void InitiateAuth(final Activity activity, final String phoneNumber, final ProgressBar MainprogressBar){
         //initiate
         phoneVerificationId = null;
         mCallbacks = null;
@@ -209,15 +211,20 @@ public class auth {
             }
         });
 
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                MainprogressBar.setVisibility(View.GONE);
+            }
+        });
+
         dialog.show();
     }
 
     public static void RegisterPhone(final Activity activity,final String phoneNumber, final Dialog dialog,final EditText input,final Button send,final Button resend,final ProgressBar progressBar){
         // The test phone number and code should be whitelisted in the console.
-        //String phoneNumber = phone;//"+27820964587";
+        //String phoneNumber = phone;//"+27286529098567445038157";
         String smsCode = phoneVerificationId;
-        accessKeys.setPhone(phoneNumber);
-
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseAuthSettings firebaseAuthSettings = firebaseAuth.getFirebaseAuthSettings();
@@ -333,6 +340,9 @@ public class auth {
                                     if (task.isSuccessful()) {
                                         //set Realm user information;
                                         Loginfo("user Personal Details successfully added");
+                                        accessKeys.setDefaultUserId(UUID);
+                                        accessKeys.setDefaultDocument(document);
+                                        accessKeys.setApproval(false);
                                         globalMethods.stopProgress = true;
                                         step2.saveIDDocument(activity,step2.selectedID, document);
                                         step2.saveProfileDocument(activity,step2.selectedImage, document);
